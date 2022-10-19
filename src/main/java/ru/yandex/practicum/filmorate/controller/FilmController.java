@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -17,7 +16,6 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/films")
-
 public class FilmController {
     private static final Logger log = LoggerFactory.getLogger(FilmController.class);
     private final HashMap<Integer, Film> films = new HashMap<>();
@@ -30,7 +28,6 @@ public class FilmController {
 
     @PostMapping()
     public Film create(@RequestBody Film film) throws ValidationException {
-        Gson gson = new Gson();
         if (filmValidation(film)) {
             films.put(film.getId(), film);
             log.info("Film {} saved!", film.getName());
@@ -39,7 +36,6 @@ public class FilmController {
     }
 
     @PutMapping() Film update(@RequestBody Film film) throws ValidationException {
-        Gson gson = new Gson();
         if (films.containsKey(film.getId()) && filmValidation(film)) {
             films.put(film.getId(), film);
             log.info("Film's {} info updated!", film.getName());

@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -16,7 +15,6 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/users")
-
 public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final HashMap<Integer, User> users = new HashMap<>();
@@ -28,7 +26,6 @@ public class UserController {
 
     @PostMapping()
     public User create(@RequestBody User user) throws ValidationException {
-        Gson gson = new Gson();
         User newUser = userValidation(user);
         users.put(newUser.getId(), newUser);
         log.info("User  {} saved!", newUser.getName());
@@ -37,7 +34,6 @@ public class UserController {
 
     @PutMapping()
     public User update(@RequestBody User user) throws ValidationException {
-        Gson gson = new Gson();
         User newUser = userValidation(user);
         if (users.containsKey(newUser.getId())) {
             users.put(newUser.getId(), newUser);
