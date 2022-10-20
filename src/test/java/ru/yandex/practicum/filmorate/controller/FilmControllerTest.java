@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import com.google.gson.*;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import ru.yandex.practicum.filmorate.FilmorateApplication;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.LocalDateAdapter;
@@ -21,14 +23,20 @@ import static org.junit.jupiter.api.Assertions.*;
 class FilmControllerTest {
 
     static Gson gson;
+    static ConfigurableApplicationContext ctx;
 
     @BeforeAll
     static void setUp() {
-        SpringApplication.run(FilmorateApplication.class);
+        ctx = SpringApplication.run(FilmorateApplication.class);
         gson = new GsonBuilder()
                 .setPrettyPrinting()
                 .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
                 .create();
+    }
+
+    @AfterAll
+    static void setDown() {
+        ctx.close();
     }
 
     @Test
