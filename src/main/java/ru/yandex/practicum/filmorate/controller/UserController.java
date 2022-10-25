@@ -2,61 +2,72 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.Response;
+import ru.yandex.practicum.filmorate.exception.UnsupportedIdException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
-    private final HashMap<Integer, User> users = new HashMap<>();
+    private final UserService userService;
+
+    @Autowired
+    public UserController( UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping()
     public Collection<User> findAll() {
-        return users.values();
+        return userService.findAll();
     }
 
     @PostMapping()
     public User create(@RequestBody User user) throws ValidationException {
-        User newUser = userValidation(user);
-        users.put(newUser.getId(), newUser);
-        log.info("User  {} saved!", newUser.getName());
-        return newUser;
+        return userService.create(user);
     }
 
     @PutMapping()
     public User update(@RequestBody User user) throws ValidationException {
-        User newUser = userValidation(user);
-        if (users.containsKey(newUser.getId())) {
-            users.put(newUser.getId(), newUser);
-            log.info("User's info {} updated!", user.getName());
-            return newUser;
-        }
-        throw new NoSuchElementException("User with id " + user.getId() + " didn't found!");
+        return userService.update(user);
     }
 
-    public User userValidation(User user) throws ValidationException {
-        if ((user.getEmail().isEmpty()) || !(user.getEmail().contains("@"))) {
-            throw new ValidationException("Email is not correct!");
+    @GetMapping("/{id}")
+    public User findUser(@PathVariable int id) {
+        return userService.findUser(id);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable int id, @PathVariable int friendId) throws UnsupportedIdException {
+        if (id==friendId){
+        throw new UnsupportedIdException("Ids same");
         }
-        if ((user.getLogin().isEmpty()) || (user.getLogin().isBlank())) {
-            throw new ValidationException("Login is not correct!");
+        return userService.addFriend(id,friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public User deleteFriend(@PathVariable int id, @PathVariable int friendId) throws UnsupportedIdException {
+        if (id==friendId){
+            throw new UnsupportedIdException("Ids same");
         }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Birthday date is not correct!");
-        }
-        if ((user.getName() == null) || user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-        }
-        return user;
+        return userService.deleteFriend(id,friendId);
+    }
+    @GetMapping("/{id}/friends")
+    public Collection<User> getFriends(@PathVariable int id)  {
+        return userService.getFriends(id);
+    }
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public Collection<User> getCommonFriends(@PathVariable int id,@PathVariable int otherId)  {
+        return userService.getCommonFriends(id,otherId);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -69,6 +80,13 @@ public class UserController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NoSuchElementException.class)
     public Response handleException(NoSuchElementException exception) {
+        log.warn(exception.getMessage(), exception);
+        return new Response(exception.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(UnsupportedIdException.class)
+    public Response handleException(UnsupportedIdException exception) {
         log.warn(exception.getMessage(), exception);
         return new Response(exception.getMessage());
     }
