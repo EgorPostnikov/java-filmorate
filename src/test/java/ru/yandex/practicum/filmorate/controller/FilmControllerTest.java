@@ -185,4 +185,19 @@ class FilmControllerTest {
         assertEquals(1, film.getId());
         assertEquals("Матрица Перезагрузка", film.getName());
     }
+    @Test
+    @DisplayName("filmControllerValidationTest10-update-id is not found")
+    void filmControllerValidationTest10() throws IOException, InterruptedException {
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/films");
+        String json = "{\n  \"id\": \"9999\",\n  \"name\": \"Матрица\",\n  \"description\": \"adipisicing\",\n  \"releaseDate\": \"2020-12-12\",\n  \"duration\": 100\n}";
+        final HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
+        HttpRequest request = HttpRequest.newBuilder().uri(url).header("Content-Type", "application/json").PUT(body).build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        JsonElement jsonElement = JsonParser.parseString(response.body());
+        JsonObject message = jsonElement.getAsJsonObject();
+
+        assertEquals(404, response.statusCode());
+        assertEquals("Film with id 9999 didn't found!", message.get("message").getAsString());
+    }
 }
