@@ -8,8 +8,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.Optional;
 
 @Component
-public class FilmDaoImpl implements FilmDao {
-    private final JdbcTemplate jdbcTemplate;
+public class FilmDaoImpl  {
+    /*private final JdbcTemplate jdbcTemplate;
 
     public FilmDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -19,5 +19,5 @@ public class FilmDaoImpl implements FilmDao {
     @Override
     public Optional<Film> findFilm(int id) {
         return Optional.empty();
-    }
+    }*/
 }

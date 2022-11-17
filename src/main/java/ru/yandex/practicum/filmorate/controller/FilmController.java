@@ -38,7 +38,8 @@ public class FilmController {
     public Film create(@RequestBody Film film) throws ValidationException {
         if (!filmValidation(film)) {
             throw new ValidationException("Validation false!");
-        } return filmService.create(film);
+        }
+        return filmService.create(film);
     }
 
     @PutMapping()
@@ -78,6 +79,7 @@ public class FilmController {
         log.warn(exception.getMessage(), exception);
         return new Response(exception.getMessage());
     }
+
     public Boolean filmValidation(Film film) throws ValidationException {
         if ((film.getName().isEmpty()) || (film.getName().isBlank())) {
             throw new ValidationException("Name is empty!");

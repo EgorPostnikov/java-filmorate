@@ -12,8 +12,8 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.Optional;
 
 @Component
-public class UserDaoImpl implements UserDao {
-    private static final Logger log = LoggerFactory.getLogger(UserDaoImpl.class);
+public class UserDaoImpl  {
+    /*private static final Logger log = LoggerFactory.getLogger(UserDaoImpl.class);
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -33,5 +33,5 @@ public class UserDaoImpl implements UserDao {
             log.info("Пользователь с идентификатором {} не найден.", id);
             return Optional.empty();
     }
-}
+}*/
 }

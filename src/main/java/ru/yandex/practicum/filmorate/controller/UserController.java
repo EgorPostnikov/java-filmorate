@@ -25,7 +25,7 @@ public class UserController {
     public UserController( UserService userService) {
         this.userService = userService;
     }
-/*
+
     @GetMapping()
     public Collection<User> findAll() {
         return userService.findAll();
@@ -44,7 +44,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public Optional<User> findUser(@PathVariable int id) {
+    public User findUser(@PathVariable int id) {
         return userService.findUser(id);
     }
 
@@ -108,5 +108,5 @@ public class UserController {
         }
         return user;
     }
-*/
+
 }

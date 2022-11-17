@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS films (
-  film_id int PRIMARY KEY,
+  film_id int (64) not null PRIMARY KEY,
   rating_id int,
   name varchar,
   duration int,
@@ -41,6 +41,8 @@ CREATE TABLE IF NOT EXISTS friends (
   friend_id int,
   status_id int
 );
+create unique index status_id_uindex
+    on friends (status_id);
 
 CREATE TABLE IF NOT EXISTS status (
   status_id int PRIMARY KEY,

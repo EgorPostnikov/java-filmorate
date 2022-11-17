@@ -10,6 +10,7 @@ import java.util.Set;
 public class Film {
 
     private Set<Long> likes = new HashSet<>();
+    private Set<String> genres = new HashSet<>();
     private int id;
 
     private int ratingId;
@@ -17,6 +18,10 @@ public class Film {
     private int duration;
     private String description;
     private LocalDate releaseDate;
+
+
+    private String rating;
+
 
 
     public Film(int id, String name, String description, LocalDate releaseDate, int duration) {
