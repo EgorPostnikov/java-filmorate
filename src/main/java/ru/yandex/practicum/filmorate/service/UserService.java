@@ -3,20 +3,24 @@ package ru.yandex.practicum.filmorate.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.exception.UnsupportedIdException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 @Service
 public class UserService {
+    private final UserDao userDao;
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserStorage userStorage;
 
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage,UserDao userDao ) {
         this.userStorage = userStorage;
+        this.userDao = userDao;
     }
 
     public Collection<User> findAll() {
@@ -32,12 +36,12 @@ public class UserService {
     }
 
 
-    public User findUser(int id) {
+    public Optional<User> findUser(int id) {
         log.info("User with id {} found", id);
-        return userStorage.findUser(id);
+        return userDao.findUser(id);
     }
 
-    public User addFriend(int id, int friendId) {
+    /*public User addFriend(int id, int friendId) {
         User user = userStorage.findUser(id);
         User friend = userStorage.findUser(friendId);
         user.getFriends().add((long) friendId);
@@ -81,6 +85,6 @@ public class UserService {
         }
         return friends;
     }
-
+*/
 
 }

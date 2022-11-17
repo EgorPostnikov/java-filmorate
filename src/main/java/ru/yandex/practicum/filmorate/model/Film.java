@@ -11,10 +11,13 @@ public class Film {
 
     private Set<Long> likes = new HashSet<>();
     private int id;
+
+    private int ratingId;
     private String name;
     private int duration;
     private String description;
     private LocalDate releaseDate;
+
 
     public Film(int id, String name, String description, LocalDate releaseDate, int duration) {
         this.name = name;
