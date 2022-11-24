@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.NoSuchElementException;
@@ -64,11 +65,11 @@ public class UserController {
         return userService.deleteFriend(id,friendId);
     }
     @GetMapping("/{id}/friends")
-    public Collection<User> getFriends(@PathVariable int id)  {
+    public Collection<User> getFriends(@PathVariable int id) throws SQLException {
         return userService.getFriends(id);
     }
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Collection<User> getCommonFriends(@PathVariable int id,@PathVariable int otherId)  {
+    public Collection<User> getCommonFriends(@PathVariable int id,@PathVariable int otherId) throws SQLException {
         return userService.getCommonFriends(id,otherId);
     }
 

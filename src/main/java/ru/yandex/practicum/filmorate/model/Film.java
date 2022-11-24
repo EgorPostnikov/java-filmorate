@@ -19,10 +19,7 @@ public class Film {
     private String description;
     private LocalDate releaseDate;
 
-
     private String rating;
-
-
 
     public Film(int id, String name, String description, LocalDate releaseDate, int duration) {
         this.name = name;

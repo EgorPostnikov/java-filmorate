@@ -3,9 +3,11 @@ package ru.yandex.practicum.filmorate.storage.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.UnsupportedIdException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
@@ -52,4 +54,35 @@ public class InMemoryUserStorage implements UserStorage {
         }
         return users.get(id);
     }
+    @Override
+    public Collection<Long> getFriends(int id) {
+        Collection<Long> friendsId = findUser(id).getFriends();
+        log.info("Friends list for User id {} created, friends qty = {}", id, friendsId.size());
+        return friendsId;
+    }
+
+    @Override
+    public User addFriend(int id, int friendId) {
+        User user = findUser(id);
+        User friend = findUser(friendId);
+        user.getFriends().add((long) friendId);
+        friend.getFriends().add((long) id);
+        log.info("User id {} added friend id {}", id, friendId);
+        update(friend);
+        return update(user);
+    }
+    @Override
+    public User deleteFriend(int id, int friendId) throws UnsupportedIdException {
+        User user = findUser(id);
+        User friend = findUser(friendId);
+        if (!user.getFriends().contains((long) friendId)) {
+            throw new UnsupportedIdException("One of ids didn't found!");
+        }
+        friend.getFriends().remove((long) id);
+        user.getFriends().remove((long) friendId);
+        log.info("User id {} removed friend id {}", id, friendId);
+        update(friend);
+        return update(user);
+    }
+
 }
