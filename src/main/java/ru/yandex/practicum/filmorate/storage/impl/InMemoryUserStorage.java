@@ -5,9 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.UnsupportedIdException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.inter.UserStorage;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.NoSuchElementException;

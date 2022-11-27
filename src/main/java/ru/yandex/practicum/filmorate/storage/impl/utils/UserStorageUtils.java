@@ -17,7 +17,6 @@ public class UserStorageUtils {
                 resultSet.getString("login"),
                 resultSet.getString("name"),
                 resultSet.getDate("birthday").toLocalDate());
-
         return user;
     }
 }
