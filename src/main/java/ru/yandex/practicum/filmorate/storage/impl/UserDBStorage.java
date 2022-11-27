@@ -32,16 +32,15 @@ public class UserDBStorage implements UserStorage {
 
     @Override
     public Collection<User> findAll() {
-        String sql = "select * from USERS";
-        List<User> users = new ArrayList<>();
-        users = jdbcTemplate.query(sql, UserStorageUtils::makeUser);
+        String sql = "SELECT * FROM users";
+        List<User> users =  jdbcTemplate.query(sql, UserStorageUtils::makeUser);
         log.info("List of all users sent, films qty - {}", users.size());
         return users;
     }
 
     @Override
     public User create(User user) {
-        String sqlQuery = "INSERT INTO USERS (EMAIL, LOGIN, BIRTHDAY,NAME) VALUES (?,?,?,?)";
+        String sqlQuery = "INSERT INTO users (email, login, birthday, name) VALUES (?,?,?,?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
@@ -60,7 +59,7 @@ public class UserDBStorage implements UserStorage {
     @Override
     public User update(User user) throws NoSuchElementException {
         findUser(user.getId());
-        String sqlQuery = "UPDATE USERS SET EMAIL = ?, LOGIN = ?, BIRTHDAY = ?, NAME = ? WHERE USER_ID = ?";
+        String sqlQuery = "UPDATE users SET email = ?, login = ?, birthday = ?, name = ? WHERE user_id = ?";
         jdbcTemplate.update(sqlQuery, user.getEmail(), user.getLogin(), user.getBirthday(), user.getName(), user.getId());
         log.info("User with id {} updated", user.getId());
         return findUser(user.getId());
@@ -68,7 +67,7 @@ public class UserDBStorage implements UserStorage {
 
     @Override
     public User findUser(int id) throws NoSuchElementException {
-        String sql = "SELECT * from users where user_id = ?";
+        String sql = "SELECT * FROM users WHERE user_id = ?";
         List<User> user = jdbcTemplate.query(sql, UserStorageUtils::makeUser, id);
         if (user.size() != 1) {
             throw new NoSuchElementException("User with id " + id + " didn't found!");
@@ -80,7 +79,7 @@ public class UserDBStorage implements UserStorage {
     public User addFriend(int id, int friendId) {
         findUser(id);
         findUser(friendId);
-        String sqlQuery = "INSERT INTO FRIENDS (user_id, friend_id) VALUES (?,?)";
+        String sqlQuery = "INSERT INTO friends (user_id, friend_id) VALUES (?,?)";
         jdbcTemplate.update(sqlQuery, id, friendId);
         log.info("User with id {} updated friends", id);
         return findUser(id);
@@ -90,7 +89,7 @@ public class UserDBStorage implements UserStorage {
     public User deleteFriend(int id, int friendId) throws NoSuchElementException {
         findUser(id);
         findUser(friendId);
-        String sqlQuery = "DELETE FROM FRIENDS WHERE user_id= ? and friend_id= ?; ";
+        String sqlQuery = "DELETE FROM friends WHERE user_id= ? AND friend_id= ?; ";
         jdbcTemplate.update(sqlQuery, id, friendId);
         log.info("User with id {} deleted friends", id);
         return findUser(id);
@@ -98,7 +97,7 @@ public class UserDBStorage implements UserStorage {
 
     @Override
     public Collection<Long> getFriends(int id) throws SQLException {
-        String sql = "SELECT FRIEND_ID from FRIENDS where USER_ID = ? order by FRIEND_ID desc;";
+        String sql = "SELECT friend_id FROM friends WHERE user_id = ? ORDER BY friend_id DESC;";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sql, id);
         Collection<Long> friends = new ArrayList<>();
         while (userRows.next()) {

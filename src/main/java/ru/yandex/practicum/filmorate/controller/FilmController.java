@@ -35,6 +35,7 @@ public class FilmController {
     public Film findFilm(@PathVariable int id) {
         return filmService.findFilm(id);
     }
+
     @GetMapping("/films/popular")
     Collection<Film> getMostLikedFilms(@RequestParam(defaultValue = "10") int count) {
         return filmService.getMostLikedFilms(count);
@@ -44,18 +45,22 @@ public class FilmController {
     public Collection<Genre> getGenres() {
         return filmService.getGenres();
     }
+
     @GetMapping("/genres/{id}")
     public Genre getGenre(@PathVariable int id) {
         return filmService.getGenre(id);
     }
+
     @GetMapping("/mpa")
     public Collection<Mpa> getRatings() {
         return filmService.getRatings();
     }
+
     @GetMapping("/mpa/{id}")
     public Mpa getRatingOfFilm(@PathVariable int id) {
         return filmService.getRating(id);
     }
+
     @PostMapping("/films")
     public Film create(@RequestBody Film film) throws ValidationException {
         if (!filmValidation(film)) {
@@ -110,11 +115,11 @@ public class FilmController {
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("RealiseDate is before 28 december 1895!");
         }
-        try { film.getMpa().getId();
-        }catch (NullPointerException e) {
-                throw new ValidationException("MPA is not correct");
+        try {
+            film.getMpa().getId();
+        } catch (NullPointerException e) {
+            throw new ValidationException("MPA is not correct");
         }
         return true;
     }
-
 }

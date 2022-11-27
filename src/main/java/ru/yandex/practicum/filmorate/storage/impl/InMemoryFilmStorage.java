@@ -27,7 +27,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Collection<Film> findAll() {
-        log.info("List of all films sent, films qty - {}",films.size());
+        log.info("List of all films sent, films qty - {}", films.size());
         return films.values();
     }
 
@@ -79,41 +79,30 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film addLike(int filmId, int userId) {
-        return null;
-    }
-
-    @Override
-    public Film deleteLike(int filmId, int userId) {
-        return null;
-    }
-
-    @Override
-    public Collection<Film> getMostLikedFilms(int count) {
-        return null;
-    }
-
-    /*public Film addLike(int filmId, int userId) {
-        Film film = filmStorage.findFilm(filmId);
+        Film film = findFilm(filmId);
         film.getLikes().add((long) userId);
         log.info("Like with id {} added to film id {}", userId, filmId);
-        return filmStorage.update(film);
+        return update(film);
     }
 
+    @Override
     public Film deleteLike(int filmId, int userId) {
-        Film film = filmStorage.findFilm(filmId);
+        Film film = findFilm(filmId);
         if (!film.getLikes().contains((long) userId)) {
             throw new NoSuchElementException("like of user with id " + userId + " for film id " + filmId + " didn't found!");
         } else {
             film.getLikes().remove((long) userId);
             log.info("Like with id {} removed from film id {}", userId, filmId);
         }
-        return filmStorage.update(film);
+        return update(film);
     }
 
+    @Override
     public Collection<Film> getMostLikedFilms(int count) {
-        return filmStorage.findAll().stream().sorted((p0, p1) -> {
+        return findAll().stream().sorted((p0, p1) -> {
             int comp = p1.getLikes().size() - p0.getLikes().size();
             return comp;
         }).limit(count).collect(Collectors.toList());
-    }*/
+    }
+
 }

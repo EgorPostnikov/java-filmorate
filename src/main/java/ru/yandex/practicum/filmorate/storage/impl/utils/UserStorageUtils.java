@@ -7,9 +7,6 @@ import java.sql.SQLException;
 
 public class UserStorageUtils {
 
-    private UserStorageUtils() {
-    }
-
     public static User makeUser(ResultSet resultSet, int rowNum) throws SQLException {
         User user = new User(
                 resultSet.getInt("user_id"),

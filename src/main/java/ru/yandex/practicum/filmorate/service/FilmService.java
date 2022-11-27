@@ -1,7 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -13,8 +11,8 @@ import java.util.Collection;
 
 @Service
 public class FilmService {
-    private static final Logger log = LoggerFactory.getLogger(FilmService.class);
     private final FilmStorage filmStorage;
+
     public FilmService(@Qualifier("FilmDBStorage") FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
     }
@@ -24,7 +22,6 @@ public class FilmService {
     }
 
     public Film findFilm(int id) {
-        log.info("Film with id {} found", id);
         return filmStorage.findFilm(id);
     }
 

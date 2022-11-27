@@ -1,11 +1,10 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.impl.utils;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.impl.utils.GenreStorageUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,9 +31,8 @@ public class FilmStorageUtils {
     }
 
     public static List<Genre> getGenreOfFilm(Film film) {
-        String sql = "select * from film_genre as fg left join genres as ge ON fg.genre_id=ge.genre_id where film_id= ?";
-        List<Genre> genres = jdbcTemplate.query(sql, GenreStorageUtils::makeGenre, film.getId());
-        return genres;
+        String sql = "SELECT * FROM film_genre AS fg LEFT OUTER JOIN genres AS ge ON fg.genre_id=ge.genre_id WHERE film_id= ?";
+        return jdbcTemplate.query(sql, GenreStorageUtils::makeGenre, film.getId());
     }
 
 }

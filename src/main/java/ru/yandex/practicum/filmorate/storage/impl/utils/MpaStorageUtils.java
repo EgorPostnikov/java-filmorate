@@ -7,9 +7,6 @@ import java.sql.SQLException;
 
 public class MpaStorageUtils {
 
-    private MpaStorageUtils() {
-    }
-
     public static Mpa makeMpa(ResultSet resultSet, int rowNum) throws SQLException {
         Mpa mpa = new Mpa(
                 resultSet.getInt("rating_id"),

@@ -24,7 +24,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public Collection<User> findAll() {
-        log.info("List of all users sent, films qty - {}",users.size());
+        log.info("List of all users sent, films qty - {}", users.size());
         return users.values();
     }
 
@@ -53,6 +53,7 @@ public class InMemoryUserStorage implements UserStorage {
         }
         return users.get(id);
     }
+
     @Override
     public Collection<Long> getFriends(int id) {
         Collection<Long> friendsId = findUser(id).getFriends();
@@ -70,6 +71,7 @@ public class InMemoryUserStorage implements UserStorage {
         update(friend);
         return update(user);
     }
+
     @Override
     public User deleteFriend(int id, int friendId) throws UnsupportedIdException {
         User user = findUser(id);

@@ -15,10 +15,9 @@ import java.util.Collection;
 @Service
 public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
-
     private final UserStorage userStorage;
 
-    public UserService( @Qualifier("UserDBStorage") UserStorage userStorage) {
+    public UserService(@Qualifier("UserDBStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -34,7 +33,6 @@ public class UserService {
         return userStorage.update(user);
     }
 
-
     public User findUser(int id) {
         log.info("User with id {} found", id);
         return userStorage.findUser(id);
@@ -46,14 +44,13 @@ public class UserService {
     }
 
     public User deleteFriend(int id, int friendId) throws UnsupportedIdException {
-        return userStorage.deleteFriend(id,friendId);
+        return userStorage.deleteFriend(id, friendId);
     }
 
     public Collection<User> getFriends(int id) throws SQLException {
         Collection<Long> friendsId = userStorage.getFriends(id);
         log.info("Friends list for User id {} created, friends qty = {}", id, friendsId.size());
         return getFriendsList(friendsId);
-
     }
 
     public Collection<User> getCommonFriends(int id, int otherId) throws SQLException {

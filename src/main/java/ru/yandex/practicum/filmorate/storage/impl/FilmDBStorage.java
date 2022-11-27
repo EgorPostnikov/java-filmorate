@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.impl.utils.FilmStorageUtils;
 import ru.yandex.practicum.filmorate.storage.impl.utils.GenreStorageUtils;
 import ru.yandex.practicum.filmorate.storage.impl.utils.MpaStorageUtils;
 import ru.yandex.practicum.filmorate.storage.inter.FilmStorage;
@@ -31,7 +32,7 @@ public class FilmDBStorage implements FilmStorage {
 
     @Override
     public Collection<Film> findAll() {
-        String sql = "select * from FILMS AS f LEFT JOIN RATINGS AS r on f.RATING_ID = r.RATING_ID";
+        String sql = "SELECT * FROM films AS f LEFT JOIN ratings AS r on f.rating_id = r.rating_id";
         List<Film> films = jdbcTemplate.query(sql, FilmStorageUtils::makeFilm);
         log.info("List of all films sent, films qty - {}", films.size());
         return films;
@@ -40,28 +41,31 @@ public class FilmDBStorage implements FilmStorage {
     @Override
     public Film update(Film film) throws NoSuchElementException {
         findFilm(film.getId());
-        String sqlQuery = "UPDATE FILMS SET NAME = ?, DESCRIPTION = ?, RELEASEDATE = ?, DURATION = ?, RATING_ID = ? WHERE FILM_ID = ?";
-        jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getMpa().getId(), film.getId());
+        String sqlQuery = "UPDATE films " +
+                "SET name = ?, description = ?, releasedate = ?, duration = ?, rating_id = ? " +
+                "WHERE film_id = ?";
+        jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(),
+                film.getReleaseDate(), film.getDuration(), film.getMpa().getId(), film.getId());
         log.info("Film with id {} updated", film.getId());
         setGenre(film);
         return findFilm(film.getId());
     }
 
-
     @Override
     public Film findFilm(int id) throws NoSuchElementException {
-        String sql = "select * from FILMS AS f LEFT JOIN RATINGS AS r on f.RATING_ID = r.RATING_ID WHERE FILM_ID=?";
+        String sql = "SELECT * FROM films AS f " +
+                "LEFT OUTER JOIN ratings AS r on f.rating_id = r.rating_id WHERE film_id=?";
         List<Film> films = jdbcTemplate.query(sql, FilmStorageUtils::makeFilm, id);
         if (films.size() != 1) {
             throw new NoSuchElementException("Film with id " + id + " didn't found!");
         }
-        Film film = films.get(0);
-        return film;
+        log.info("Film with id {} found", id);
+        return films.get(0);
     }
 
     @Override
     public Collection<Genre> getGenres() {
-        String sql = "select * from GENRES";
+        String sql = "SELECT * FROM genres";
         List<Genre> genres = jdbcTemplate.query(sql, GenreStorageUtils::makeGenre);
         log.info("List of all genres sent, genres qty - {}", genres.size());
         return genres;
@@ -69,7 +73,7 @@ public class FilmDBStorage implements FilmStorage {
 
     @Override
     public Genre getGenre(int id) {
-        String sql = "SELECT * FROM GENRES WHERE GENRE_ID = ?";
+        String sql = "SELECT * FROM genres WHERE genre_id = ?";
         List<Genre> genres = jdbcTemplate.query(sql, GenreStorageUtils::makeGenre, id);
         if (genres.size() != 1) {
             throw new NoSuchElementException("Genre with id " + id + " didn't found!");
@@ -79,7 +83,7 @@ public class FilmDBStorage implements FilmStorage {
 
     @Override
     public Collection<Mpa> getRatings() {
-        String sql = "select * from RATINGS";
+        String sql = "SELECT * FROM ratings";
         List<Mpa> ratings = jdbcTemplate.query(sql, MpaStorageUtils::makeMpa);
         log.info("List of all ratings sent, ratings qty - {}", ratings.size());
         return ratings;
@@ -87,7 +91,7 @@ public class FilmDBStorage implements FilmStorage {
 
     @Override
     public Mpa getRating(int id) throws NoSuchElementException {
-        String sql = "SELECT * FROM RATINGS WHERE rating_id = ?";
+        String sql = "SELECT * FROM ratings WHERE rating_id = ?";
         List<Mpa> ratings = jdbcTemplate.query(sql, MpaStorageUtils::makeMpa, id);
         if (ratings.size() != 1) {
             throw new NoSuchElementException("Rating with id " + id + " didn't found!");
@@ -98,7 +102,7 @@ public class FilmDBStorage implements FilmStorage {
     public void setGenre(Film film) {
         List<Genre> genres = new ArrayList<>(film.getGenres());
         String delGenre = "DELETE FROM film_genre WHERE film_id = ?;";
-            jdbcTemplate.update(delGenre, film.getId());
+        jdbcTemplate.update(delGenre, film.getId());
         String sql = "MERGE INTO film_genre (film_id,genre_id) VALUES (?,?);";
         for (Genre genre : genres) {
             jdbcTemplate.update(sql, film.getId(), genre.getId());
@@ -107,22 +111,16 @@ public class FilmDBStorage implements FilmStorage {
 
     @Override
     public Film create(Film film) {
-
-        String sqlQuery = "INSERT INTO FILMS (NAME,DESCRIPTION, RELEASEDATE,DURATION, RATING_ID) " +
+        String sqlQuery = "INSERT INTO films (name,description, releasedate, duration, rating_id) " +
                 "VALUES (?,?,?,?,?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
-
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"film_id"});
             stmt.setString(1, film.getName());
             stmt.setString(2, film.getDescription());
             stmt.setDate(3, Date.valueOf(film.getReleaseDate()));
             stmt.setInt(4, film.getDuration());
-            try {
-                stmt.setInt(5, film.getMpa().getId());
-            } catch (NullPointerException e) {
-                stmt.setNull(5, 1);
-            }
+            stmt.setInt(5, film.getMpa().getId());
             return stmt;
         }, keyHolder);
         int filmId = (int) keyHolder.getKey().longValue();
@@ -131,6 +129,7 @@ public class FilmDBStorage implements FilmStorage {
         setGenre(film);
         return findFilm(filmId);
     }
+
     @Override
     public Film addLike(int filmId, int userId) {
         String sql = "INSERT INTO likes (film_id,user_id) VALUES (?,?)";
@@ -138,29 +137,31 @@ public class FilmDBStorage implements FilmStorage {
         log.info("Like with id {} added to film id {}", userId, filmId);
         return findFilm(filmId);
     }
+
     @Override
     public Film deleteLike(int filmId, int userId) throws NoSuchElementException {
-        String sqlQuerry = "SELECT * FROM likes WHERE film_id = ? and user_id=?";
+        String sqlQuerry = "SELECT * FROM likes WHERE film_id = ? AND user_id=?";
         List ids = jdbcTemplate.queryForList(sqlQuerry, filmId, userId);
-        if (ids.size()==0) {
+        if (ids.size() == 0) {
             throw new NoSuchElementException("like of user with id " + userId + " for film id " + filmId + " didn't found!");
         } else {
-            String sql = "DELETE FROM likes WHERE film_id = ? and user_id=?";
+            String sql = "DELETE FROM likes WHERE film_id = ? AND user_id=?";
             jdbcTemplate.update(sql, filmId, userId);
             log.info("Like with id {} removed from film id {}", userId, filmId);
         }
         return findFilm(filmId);
     }
+
     @Override
     public Collection<Film> getMostLikedFilms(int count) {
-        String sql = "select f.film_id, f.name, f.description,f.releasedate,f. duration, f.rating_id, r.NAME " +
-                "from FILMS as f " +
-                "left outer join likes as l ON f.FILM_ID = l.FILM_ID " +
-                "left outer join ratings as r ON f.rating_id=r.rating_id " +
-                "group by f.FILM_ID " +
-                "ORDER BY count(USER_ID) desc " +
-                "limit ?";
-        List<Film> films = jdbcTemplate.query(sql, FilmStorageUtils::makeFilm,count);
+        String sql = "SELECT f.film_id, f.name, f.description,f.releasedate,f. duration, f.rating_id, r.name " +
+                "FROM films AS f " +
+                "LEFT OUTER JOIN likes AS l ON f.FILM_ID = l.FILM_ID " +
+                "LEFT OUTER JOIN ratings AS r ON f.rating_id=r.rating_id " +
+                "GROUP BY f.FILM_ID " +
+                "ORDER BY count(USER_ID) DESC " +
+                "LIMIT ?";
+        List<Film> films = jdbcTemplate.query(sql, FilmStorageUtils::makeFilm, count);
         log.info("List of most liked films sent, films qty - {}", films.size());
         return films;
     }
