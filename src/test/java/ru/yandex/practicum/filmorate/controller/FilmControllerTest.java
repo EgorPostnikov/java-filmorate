@@ -133,28 +133,6 @@ class FilmControllerTest {
     }
 
     @Test
-    @DisplayName("filmControllerValidationTest5-save-realiseDate is 28 DEC 1895")
-    void filmControllerValidationTest5() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/films");
-        String json = "{\n" +
-                "  \"name\": \"labore nulla\",\n" +
-                "  \"releaseDate\": \"1895-12-29\",\n" +
-                "  \"description\": \"Duis in consequat esse\",\n" +
-                "  \"duration\": 100,\n" +
-                "  \"rate\": 4,\n" +
-                "  \"mpa\": { \"id\": 1}\n" +
-                "}";
-        final HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
-        HttpRequest request = HttpRequest.newBuilder().uri(url).header("Content-Type", "application/json").POST(body).build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        Film film = gson.fromJson(response.body(), Film.class);
-
-        assertEquals(200, response.statusCode());
-        assertEquals(LocalDate.of(1895, 12, 28), film.getReleaseDate());
-    }
-
-    @Test
     @DisplayName("filmControllerValidationTest6-save-realiseDate is before 28 DEC 1895")
     void filmControllerValidationTest6() throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
