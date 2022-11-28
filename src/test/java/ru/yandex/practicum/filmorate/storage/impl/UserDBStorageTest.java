@@ -103,7 +103,7 @@ class UserDBStorageTest {
         assertThat(userOptional)
                 .isPresent()
                 .hasValueSatisfying(user ->
-                        assertThat(user).hasFieldOrPropertyWithValue("name", "Name1")
+                        assertThat(user.getFriends()).hasSize(1)
                 );
     }
 
@@ -113,11 +113,17 @@ class UserDBStorageTest {
                 "VALUES ('mail@mail1.ru','dolor1','1946-08-20','Name1');");
         jdbcTemplate.update("INSERT INTO users (email, login, birthday, name)" +
                 " VALUES ('mail@mail1.ru','dolor1','1946-08-20','Name1');");
-        Optional<User> userOptional = Optional.ofNullable(userStorage.deleteFriend(1, 2));
+        Optional<User> userOptional = Optional.ofNullable(userStorage.addFriend(1, 2));
         assertThat(userOptional)
                 .isPresent()
                 .hasValueSatisfying(user ->
-                        assertThat(user).hasFieldOrPropertyWithValue("name", "Name1")
+                        assertThat(user.getFriends()).hasSize(1)
+                );
+        Optional<User> userOptional2 = Optional.ofNullable(userStorage.deleteFriend(1, 2));
+        assertThat(userOptional2)
+                .isPresent()
+                .hasValueSatisfying(user ->
+                        assertThat(user.getFriends()).hasSize(0)
                 );
     }
 

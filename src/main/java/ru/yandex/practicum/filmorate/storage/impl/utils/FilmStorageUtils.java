@@ -14,7 +14,6 @@ import java.util.List;
 @Component
 public class FilmStorageUtils {
     private static JdbcTemplate jdbcTemplate;
-
     public FilmStorageUtils(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -39,9 +38,9 @@ public class FilmStorageUtils {
 
     public static List<Long> getLikesOfFilm(Film film) {
         String sql = "SELECT user_id FROM likes WHERE film_id = ? ORDER BY user_id DESC;";
-        return jdbcTemplate.query(sql, FilmStorageUtils::makeFriends, film.getId());
+        return jdbcTemplate.query(sql, FilmStorageUtils::makeLikes, film.getId());
     }
-    public static Long makeFriends(ResultSet resultSet, int rowNum) throws SQLException {
+    public static Long makeLikes(ResultSet resultSet, int rowNum) throws SQLException {
         return resultSet.getLong("user_id");
     }
 
