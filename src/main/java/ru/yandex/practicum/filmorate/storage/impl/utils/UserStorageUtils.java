@@ -24,7 +24,7 @@ public class UserStorageUtils {
         return user;
     }
     public static List<Long> getFriends(User user) {
-        String sql = "SELECT friend_id FROM friends WHERE user_id = ? ORDER BY friend_id DESC;";
+        String sql = "SELECT friend_id FROM friends WHERE user_id = ? ORDER BY friend_id;";
         return jdbcTemplate.query(sql, UserStorageUtils::makeFriends, user.getId());
     }
     public static Long makeFriends(ResultSet resultSet, int rowNum) throws SQLException {

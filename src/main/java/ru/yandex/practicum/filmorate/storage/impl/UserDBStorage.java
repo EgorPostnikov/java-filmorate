@@ -97,7 +97,7 @@ public class UserDBStorage implements UserStorage {
 
     @Override
     public Collection<Long> getFriends(int id) throws SQLException {
-        String sql = "SELECT friend_id FROM friends WHERE user_id = ? ORDER BY friend_id DESC;";
+        String sql = "SELECT friend_id FROM friends WHERE user_id = ? ORDER BY friend_id;";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sql, id);
         Collection<Long> friends = new ArrayList<>();
         while (userRows.next()) {
