@@ -52,3 +52,4 @@ ALTER TABLE friends ADD FOREIGN KEY (user_id) REFERENCES users (user_id);
 ALTER TABLE friends ADD FOREIGN KEY (friend_id) REFERENCES users (user_id);
 
 
+

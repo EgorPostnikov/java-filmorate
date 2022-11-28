@@ -29,13 +29,37 @@ public class FilmDBStorage implements FilmStorage {
     public FilmDBStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+    @Override
+    public Film create(Film film) {
+        String sqlQuery = "INSERT INTO films (name,description, releasedate, duration, rating_id) " +
+                "VALUES (?,?,?,?,?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"film_id"});
+            stmt.setString(1, film.getName());
+            stmt.setString(2, film.getDescription());
+            stmt.setDate(3, Date.valueOf(film.getReleaseDate()));
+            stmt.setInt(4, film.getDuration());
+            stmt.setInt(5, film.getMpa().getId());
+            return stmt;
+        }, keyHolder);
+        int filmId = (int) keyHolder.getKey().longValue();
+        log.info("Film with id {} saved", filmId);
+        film.setId(filmId);
+        setGenre(film);
+        return findFilm(filmId);
+    }
 
     @Override
-    public Collection<Film> findAll() {
-        String sql = "SELECT * FROM films AS f LEFT JOIN ratings AS r on f.rating_id = r.rating_id";
-        List<Film> films = jdbcTemplate.query(sql, FilmStorageUtils::makeFilm);
-        log.info("List of all films sent, films qty - {}", films.size());
-        return films;
+    public Film findFilm(int id) throws NoSuchElementException {
+        String sql = "SELECT * FROM films AS f " +
+                "LEFT OUTER JOIN ratings AS r on f.rating_id = r.rating_id WHERE film_id=?";
+        List<Film> films = jdbcTemplate.query(sql, FilmStorageUtils::makeFilm, id);
+        if (films.size() != 1) {
+            throw new NoSuchElementException("Film with id " + id + " didn't found!");
+        }
+        log.info("Film with id {} found", id);
+        return films.get(0);
     }
 
     @Override
@@ -52,15 +76,11 @@ public class FilmDBStorage implements FilmStorage {
     }
 
     @Override
-    public Film findFilm(int id) throws NoSuchElementException {
-        String sql = "SELECT * FROM films AS f " +
-                "LEFT OUTER JOIN ratings AS r on f.rating_id = r.rating_id WHERE film_id=?";
-        List<Film> films = jdbcTemplate.query(sql, FilmStorageUtils::makeFilm, id);
-        if (films.size() != 1) {
-            throw new NoSuchElementException("Film with id " + id + " didn't found!");
-        }
-        log.info("Film with id {} found", id);
-        return films.get(0);
+    public Collection<Film> findAll() {
+        String sql = "SELECT * FROM films AS f LEFT JOIN ratings AS r on f.rating_id = r.rating_id";
+        List<Film> films = jdbcTemplate.query(sql, FilmStorageUtils::makeFilm);
+        log.info("List of all films sent, films qty - {}", films.size());
+        return films;
     }
 
     @Override
@@ -81,6 +101,16 @@ public class FilmDBStorage implements FilmStorage {
         return genres.get(0);
     }
 
+    public void setGenre(Film film) {
+        List<Genre> genres = new ArrayList<>(film.getGenres());
+        String delGenre = "DELETE FROM film_genre WHERE film_id = ?;";
+        jdbcTemplate.update(delGenre, film.getId());
+        String sql = "MERGE INTO film_genre (film_id,genre_id) VALUES (?,?);";
+        for (Genre genre : genres) {
+            jdbcTemplate.update(sql, film.getId(), genre.getId());
+        }
+    }
+
     @Override
     public Collection<Mpa> getRatings() {
         String sql = "SELECT * FROM ratings";
@@ -97,37 +127,6 @@ public class FilmDBStorage implements FilmStorage {
             throw new NoSuchElementException("Rating with id " + id + " didn't found!");
         }
         return ratings.get(0);
-    }
-
-    public void setGenre(Film film) {
-        List<Genre> genres = new ArrayList<>(film.getGenres());
-        String delGenre = "DELETE FROM film_genre WHERE film_id = ?;";
-        jdbcTemplate.update(delGenre, film.getId());
-        String sql = "MERGE INTO film_genre (film_id,genre_id) VALUES (?,?);";
-        for (Genre genre : genres) {
-            jdbcTemplate.update(sql, film.getId(), genre.getId());
-        }
-    }
-
-    @Override
-    public Film create(Film film) {
-        String sqlQuery = "INSERT INTO films (name,description, releasedate, duration, rating_id) " +
-                "VALUES (?,?,?,?,?)";
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"film_id"});
-            stmt.setString(1, film.getName());
-            stmt.setString(2, film.getDescription());
-            stmt.setDate(3, Date.valueOf(film.getReleaseDate()));
-            stmt.setInt(4, film.getDuration());
-            stmt.setInt(5, film.getMpa().getId());
-            return stmt;
-        }, keyHolder);
-        int filmId = (int) keyHolder.getKey().longValue();
-        log.info("Film with id {} saved", filmId);
-        film.setId(filmId);
-        setGenre(film);
-        return findFilm(filmId);
     }
 
     @Override

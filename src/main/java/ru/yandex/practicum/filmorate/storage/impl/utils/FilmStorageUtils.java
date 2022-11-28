@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -27,12 +28,21 @@ public class FilmStorageUtils {
                 resultSet.getInt("duration"));
         film.setMpa(new Mpa(resultSet.getInt("rating_id"), resultSet.getString("ratings.name")));
         film.setGenres(getGenreOfFilm(film));
+        film.setLikes(getLikesOfFilm(film));
         return film;
     }
 
     public static List<Genre> getGenreOfFilm(Film film) {
         String sql = "SELECT * FROM film_genre AS fg LEFT OUTER JOIN genres AS ge ON fg.genre_id=ge.genre_id WHERE film_id= ?";
         return jdbcTemplate.query(sql, GenreStorageUtils::makeGenre, film.getId());
+    }
+
+    public static List<Long> getLikesOfFilm(Film film) {
+        String sql = "SELECT user_id FROM likes WHERE film_id = ? ORDER BY user_id DESC;";
+        return jdbcTemplate.query(sql, FilmStorageUtils::makeFriends, film.getId());
+    }
+    public static Long makeFriends(ResultSet resultSet, int rowNum) throws SQLException {
+        return resultSet.getLong("user_id");
     }
 
 }
