@@ -72,6 +72,7 @@ public class UserDBStorage implements UserStorage {
         if (user.size() != 1) {
             throw new NoSuchElementException("User with id " + id + " didn't found!");
         }
+        log.info("User with id {} found", id);
         return user.get(0);
     }
 
@@ -81,7 +82,7 @@ public class UserDBStorage implements UserStorage {
         findUser(friendId);
         String sqlQuery = "INSERT INTO friends (user_id, friend_id) VALUES (?,?)";
         jdbcTemplate.update(sqlQuery, id, friendId);
-        log.info("User with id {} updated friends", id);
+        log.info("User id {} added friend id {}", id, friendId);
         return findUser(id);
     }
 
@@ -96,15 +97,21 @@ public class UserDBStorage implements UserStorage {
     }
 
     @Override
-    public Collection<Long> getFriends(int id) throws SQLException {
-        String sql = "SELECT friend_id FROM friends WHERE user_id = ? ORDER BY friend_id;";
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet(sql, id);
-        Collection<Long> friends = new ArrayList<>();
-        while (userRows.next()) {
-            friends.add(userRows.getLong("FRIEND_ID"));
-        }
-        log.info("List of all friends sent, films qty - {}", friends.size());
-        return friends;
+    public Collection<User> getFriends(int id) {
+        String sql = "SELECT * FROM users AS u where u.user_id IN " +
+                "(SELECT f.friend_id FROM friends AS f WHERE (f.user_id = ?) ORDER BY f.friend_id);";
+        List<User> users =  jdbcTemplate.query(sql, UserStorageUtils::makeUser,id);
+        log.info("List of friends sent, films qty - {}", users.size());
+        return users;
     }
+
+    @Override
+    public Collection<User> getCommonFriends (int id, int otherId){
+        String sql = "SELECT * FROM users AS u WHERE u.user_id IN (SELECT friend_id FROM friends AS f WHERE f.user_id = ? or f.user_id = ? AND NOT (f.friend_id = ? or f.friend_id = ?) GROUP BY friend_id HAVING Count(*)>1);";
+        List<User> users =  jdbcTemplate.query(sql, UserStorageUtils::makeUser,id,otherId,id,otherId);
+        log.info("List of common friends sent, films qty - {}", users.size());
+        return users;
+    }
+
 }
 

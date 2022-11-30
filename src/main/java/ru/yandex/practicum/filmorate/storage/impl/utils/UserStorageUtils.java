@@ -15,7 +15,7 @@ public class UserStorageUtils {
     }
     public static User makeUser(ResultSet resultSet, int rowNum) throws SQLException {
         User user = new User(
-                resultSet.getInt("user_id"),
+                resultSet.getInt("users.user_id"),
                 resultSet.getString("email"),
                 resultSet.getString("login"),
                 resultSet.getString("name"),

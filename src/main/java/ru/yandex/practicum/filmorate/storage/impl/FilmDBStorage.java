@@ -52,8 +52,7 @@ public class FilmDBStorage implements FilmStorage {
 
     @Override
     public Film findFilm(int id) throws NoSuchElementException {
-        String sql = "SELECT * FROM films AS f " +
-                "LEFT OUTER JOIN ratings AS r on f.rating_id = r.rating_id WHERE film_id=?";
+        String sql = "SELECT * FROM films WHERE film_id=?";
         List<Film> films = jdbcTemplate.query(sql, FilmStorageUtils::makeFilm, id);
         if (films.size() != 1) {
             throw new NoSuchElementException("Film with id " + id + " didn't found!");

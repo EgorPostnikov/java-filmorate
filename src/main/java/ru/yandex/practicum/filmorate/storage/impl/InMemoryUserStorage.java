@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.UnsupportedIdException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.inter.UserStorage;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
@@ -55,13 +56,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Collection<Long> getFriends(int id) {
-        Collection<Long> friendsId = findUser(id).getFriends();
-        log.info("Friends list for User id {} created, friends qty = {}", id, friendsId.size());
-        return friendsId;
-    }
-
-    @Override
     public User addFriend(int id, int friendId) {
         User user = findUser(id);
         User friend = findUser(friendId);
@@ -85,5 +79,33 @@ public class InMemoryUserStorage implements UserStorage {
         update(friend);
         return update(user);
     }
+    @Override
+    public Collection<User> getFriends(int id)  {
+        Collection<Long> friendsId = getFriendsOfUser(id);
+        log.info("Friends list for User id {} created, friends qty = {}", id, friendsId.size());
+        return getFriendsList(friendsId);
+    }
+    @Override
+    public Collection<User> getCommonFriends(int id, int otherId) {
+        Collection<Long> friendsId = getFriendsOfUser(id);
+        Collection<Long> friendsIdOfFriend = getFriendsOfUser(otherId);
+        friendsId.retainAll(friendsIdOfFriend);
+        log.info("Common friends list for Users id {} and id {} created, friends qty = {}", id, otherId, friendsId.size());
+        return getFriendsList(friendsId);
+    }
 
+    public Collection<Long> getFriendsOfUser(int id) {
+        Collection<Long> friendsId = findUser(id).getFriends();
+        log.info("Friends list for User id {} created, friends qty = {}", id, friendsId.size());
+        return friendsId;
+    }
+
+
+    public Collection<User> getFriendsList(Collection<Long> friendsId) {
+        Collection<User> friends = new ArrayList<>();
+        for (Long friendId : friendsId) {
+            friends.add(findUser(Math.toIntExact(friendId)));
+        }
+        return friends;
+    }
 }

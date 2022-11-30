@@ -25,7 +25,7 @@ public class FilmStorageUtils {
                 resultSet.getString("description"),
                 resultSet.getDate("releaseDate").toLocalDate(),
                 resultSet.getInt("duration"));
-        film.setMpa(new Mpa(resultSet.getInt("rating_id"), resultSet.getString("ratings.name")));
+        film.setMpa(getRatingOfFilm(film));
         film.setGenres(getGenreOfFilm(film));
         film.setLikes(getLikesOfFilm(film));
         return film;
@@ -34,6 +34,10 @@ public class FilmStorageUtils {
     public static List<Genre> getGenreOfFilm(Film film) {
         String sql = "SELECT * FROM film_genre AS fg LEFT OUTER JOIN genres AS ge ON fg.genre_id=ge.genre_id WHERE film_id= ?";
         return jdbcTemplate.query(sql, GenreStorageUtils::makeGenre, film.getId());
+    }
+    public static Mpa getRatingOfFilm(Film film) {
+        String sql = "SELECT f.rating_id, r.name FROM films AS f LEFT OUTER JOIN ratings AS r ON f.rating_id=r.rating_id WHERE film_id= ?";
+        return jdbcTemplate.query(sql, MpaStorageUtils::makeMpa, film.getId()).get(0);
     }
 
     public static List<Long> getLikesOfFilm(Film film) {

@@ -15,10 +15,11 @@ public interface UserStorage {
 
     User findUser(int id);
 
-    Collection<Long> getFriends(int id) throws SQLException;
+    Collection<User> getFriends(int id) throws SQLException;
 
     User addFriend(int id, int friendId) throws UnsupportedIdException;
 
     User deleteFriend(int id, int friendId) throws UnsupportedIdException;
+    Collection<User> getCommonFriends (int id, int otherId);
 
 }

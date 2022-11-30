@@ -5,12 +5,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.Response;
+import ru.yandex.practicum.filmorate.model.Response;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.inter.FilmServiceInterface;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -20,9 +20,9 @@ import java.util.NoSuchElementException;
 @RequestMapping()
 public class FilmController {
     private static final Logger log = LoggerFactory.getLogger(FilmController.class);
-    private final FilmService filmService;
+    private final FilmServiceInterface filmService;
 
-    public FilmController(FilmService filmService) {
+    public FilmController(FilmServiceInterface filmService) {
         this.filmService = filmService;
     }
 

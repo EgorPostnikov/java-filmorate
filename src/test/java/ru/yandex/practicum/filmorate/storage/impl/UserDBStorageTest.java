@@ -134,11 +134,38 @@ class UserDBStorageTest {
         jdbcTemplate.update("INSERT INTO users (email, login, birthday, name) " +
                 "VALUES ('mail@mail2.ru','dolor2','1946-08-20','Name2');");
         jdbcTemplate.update("INSERT INTO friends (user_id, friend_id) VALUES (1,2);");
-        Optional<Collection<Long>> userOptional = Optional.ofNullable(userStorage.getFriends(1));
+        Optional<Collection<User>> userOptional = Optional.ofNullable(userStorage.getFriends(1));
         assertThat(userOptional)
                 .isPresent()
                 .hasValueSatisfying(friends ->
                         assertThat(friends).hasSize(1)
                 );
     }
+
+    @Test
+    void getCommonFriendTest() {
+        jdbcTemplate.update("INSERT INTO USERS (EMAIL, LOGIN, BIRTHDAY,NAME)" +
+                " VALUES ('mail@mail.ru','dolor','1946-08-20','Nick Name')");
+        jdbcTemplate.update("INSERT INTO USERS (EMAIL, LOGIN, BIRTHDAY,NAME) " +
+                "VALUES ('mail@mail2.ru','dolor2','1947-08-20','Nick Name2')");
+        jdbcTemplate.update("INSERT INTO USERS (EMAIL, LOGIN, BIRTHDAY,NAME) " +
+                "VALUES ('mail@mail3.ru','dolor3','1947-08-20','Nick Name3')");
+        jdbcTemplate.update("INSERT INTO USERS (EMAIL, LOGIN, BIRTHDAY,NAME) " +
+                "VALUES ('mail@mail4.ru','dolor4','1947-08-20','Nick Name4')");
+        Optional<Collection<User>> userOptional = Optional.ofNullable(userStorage.getCommonFriends(1, 2));
+        assertThat(userOptional)
+                .isPresent()
+                .hasValueSatisfying(user ->
+                        assertThat(user).hasSize(0)
+                );
+        jdbcTemplate.update("INSERT INTO friends (user_id, friend_id) VALUES (1,4)");
+        jdbcTemplate.update("INSERT INTO friends (user_id, friend_id) VALUES (2,4)");
+        Optional<Collection<User>> userOptional2 = Optional.ofNullable(userStorage.getCommonFriends(1, 2));
+        assertThat(userOptional2)
+                .isPresent()
+                .hasValueSatisfying(user ->
+                        assertThat(user).hasSize(1)
+                );
+    }
+
 }
