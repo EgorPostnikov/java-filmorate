@@ -1,15 +1,15 @@
 package ru.yandex.practicum.filmorate.model;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.Data;
 
 @Data
 public class User {
 
-    private Set<Long> friends = new HashSet<>();
+    private List<Long> friends = new ArrayList<>();
     private int id;
     private String email;
     private String login;
@@ -23,5 +23,4 @@ public class User {
         this.birthday = birthday;
         this.id = id;
     }
-
 }

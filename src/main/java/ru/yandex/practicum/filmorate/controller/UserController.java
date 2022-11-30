@@ -4,12 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.Response;
+import ru.yandex.practicum.filmorate.model.Response;
 import ru.yandex.practicum.filmorate.exception.UnsupportedIdException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.inter.UserServiceInterface;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.NoSuchElementException;
@@ -19,9 +20,9 @@ import java.util.NoSuchElementException;
 public class UserController {
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
-    private final UserService userService;
+    private final UserServiceInterface userService;
 
-    public UserController( UserService userService) {
+    public UserController(UserServiceInterface userService) {
         this.userService = userService;
     }
 
@@ -39,7 +40,7 @@ public class UserController {
     @PutMapping()
     public User update(@RequestBody User user) throws ValidationException {
         User newUser = userValidation(user);
-        return  userService.update(newUser);
+        return userService.update(newUser);
     }
 
     @GetMapping("/{id}")
@@ -49,26 +50,28 @@ public class UserController {
 
     @PutMapping("/{id}/friends/{friendId}")
     public User addFriend(@PathVariable int id, @PathVariable int friendId) throws UnsupportedIdException {
-        if (id==friendId){
-        throw new UnsupportedIdException("Ids same");
+        if (id == friendId) {
+            throw new UnsupportedIdException("Ids same");
         }
-        return userService.addFriend(id,friendId);
+        return userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public User deleteFriend(@PathVariable int id, @PathVariable int friendId) throws UnsupportedIdException {
-        if (id==friendId){
+        if (id == friendId) {
             throw new UnsupportedIdException("Ids same");
         }
-        return userService.deleteFriend(id,friendId);
+        return userService.deleteFriend(id, friendId);
     }
+
     @GetMapping("/{id}/friends")
-    public Collection<User> getFriends(@PathVariable int id)  {
+    public Collection<User> getFriends(@PathVariable int id) throws SQLException {
         return userService.getFriends(id);
     }
+
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Collection<User> getCommonFriends(@PathVariable int id,@PathVariable int otherId)  {
-        return userService.getCommonFriends(id,otherId);
+    public Collection<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) throws SQLException {
+        return userService.getCommonFriends(id, otherId);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -107,5 +110,4 @@ public class UserController {
         }
         return user;
     }
-
 }
